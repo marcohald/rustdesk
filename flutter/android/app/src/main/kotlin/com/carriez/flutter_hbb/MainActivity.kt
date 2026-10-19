@@ -295,6 +295,37 @@ class MainActivity : FlutterActivity() {
                         result.success(false)
                     }
                 }
+                GET_USE_ROOT_OPT -> {
+                    result.success(RootUtils.isRootEnabled(context))
+                }
+                SET_USE_ROOT_OPT -> {
+                    if (call.arguments is Boolean) {
+                        val enabled = call.arguments as Boolean
+                        RootUtils.setRootEnabled(context, enabled)
+                        if (enabled) {
+                            thread {
+                                RootUtils.grantPermissionsViaRoot(context)
+                            }
+                        }
+                        result.success(true)
+                    } else {
+                        result.success(false)
+                    }
+                }
+                TEST_ROOT -> {
+                    thread {
+                        val (isRoot, output) = RootUtils.checkRootAccess()
+                        val msg = if (isRoot) {
+                            "Root access granted: $output"
+                        } else {
+                            "Root access failed / denied: $output"
+                        }
+                        runOnUiThread {
+                            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                            result.success(isRoot)
+                        }
+                    }
+                }
                 "stop_service" -> {
                     Log.d(logTag, "Stop service")
                     mainService?.let {

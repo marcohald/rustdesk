@@ -62,8 +62,13 @@ const val GET_VALUE = "get_value"
 
 const val KEY_IS_SUPPORT_VOICE_CALL = "KEY_IS_SUPPORT_VOICE_CALL"
 
+const val GET_USE_ROOT_OPT = "get_use_root_opt"
+const val SET_USE_ROOT_OPT = "set_use_root_opt"
+const val TEST_ROOT = "test_root"
+
 const val KEY_SHARED_PREFERENCES = "KEY_SHARED_PREFERENCES"
 const val KEY_START_ON_BOOT_OPT = "KEY_START_ON_BOOT_OPT"
+const val KEY_USE_ROOT_OPT = "KEY_USE_ROOT_OPT"
 const val KEY_APP_DIR_CONFIG_PATH = "KEY_APP_DIR_CONFIG_PATH"
 
 @SuppressLint("ConstantLocale")

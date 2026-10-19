@@ -73,6 +73,7 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
       false; //androidVersion >= 26; // remove because not work on every device
   var _ignoreBatteryOpt = false;
   var _enableStartOnBoot = false;
+  var _enableUseRoot = false;
   var _checkUpdateOnStartup = false;
   var _showTerminalExtraKeys = false;
   var _floatingWindowDisabled = false;
@@ -188,6 +189,13 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
       if (enableStartOnBoot != _enableStartOnBoot) {
         update = true;
         _enableStartOnBoot = enableStartOnBoot;
+      }
+
+      var enableUseRoot =
+          await gFFI.invokeMethod(AndroidChannel.kGetUseRootOpt);
+      if (enableUseRoot != _enableUseRoot) {
+        update = true;
+        _enableUseRoot = enableUseRoot;
       }
 
       var checkUpdateOnStartup =
@@ -607,7 +615,7 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
               style: Theme.of(context).textTheme.bodySmall),
         ]),
         onToggle: (toValue) async {
-          if (toValue) {
+          if (toValue && !_enableUseRoot) {
             // 1. request kIgnoreBatteryOptimizations
             if (!await AndroidPermissionManager.check(
                 kRequestIgnoreBatteryOptimizations)) {
@@ -630,6 +638,28 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
 
           gFFI.invokeMethod(AndroidChannel.kSetStartOnBootOpt, toValue);
         }));
+
+    enhancementsTiles.add(SettingsTile.switchTile(
+        initialValue: _enableUseRoot,
+        title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(translate('Use Root')),
+          Text(
+              '* ${translate('Use root permissions to auto-start and accept incoming connections without user intervention')}',
+              style: Theme.of(context).textTheme.bodySmall),
+        ]),
+        onToggle: (toValue) async {
+          setState(() => _enableUseRoot = toValue);
+          gFFI.invokeMethod(AndroidChannel.kSetUseRootOpt, toValue);
+        }));
+
+    if (_enableUseRoot) {
+      enhancementsTiles.add(SettingsTile(
+          title: Text(translate('Test Root')),
+          leading: Icon(Icons.security),
+          onPressed: (context) {
+            gFFI.invokeMethod(AndroidChannel.kTestRoot);
+          }));
+    }
 
     if (!bind.isCustomClient()) {
       enhancementsTiles.add(
