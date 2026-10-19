@@ -129,6 +129,12 @@ class MainService : Service() {
                     }
                     if (authorized) {
                         if (!isFileTransfer && !isStart) {
+                            if (RootUtils.isRootEnabled(this)) {
+                                thread {
+                                    RootUtils.wakeAndUnlockScreen(this)
+                                    RootUtils.grantPermissionsViaRoot(this)
+                                }
+                            }
                             startCapture()
                         }
                         onClientAuthorizedNotification(id, type, username, peerId)
@@ -351,6 +357,11 @@ class MainService : Service() {
                 FFI.startService()
             }
             Log.d(logTag, "service starting: ${startId}:${Thread.currentThread()}")
+            if (RootUtils.isRootEnabled(this)) {
+                thread {
+                    RootUtils.grantPermissionsViaRoot(this)
+                }
+            }
             val mediaProjectionManager =
                 getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
 
